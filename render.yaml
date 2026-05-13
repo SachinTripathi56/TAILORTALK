@@ -1,0 +1,30 @@
+# render.yaml — place this in the ROOT of your repo
+# Deploy both services to Render.com for free
+
+services:
+  - type: web
+    name: tailortalk-backend
+    runtime: python
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: GEMINI_API_KEY
+        sync: false          # you'll fill this in the Render dashboard
+      - key: GOOGLE_SERVICE_ACCOUNT_JSON
+        sync: false
+      - key: DRIVE_FOLDER_ID
+        sync: false
+
+  - type: web
+    name: tailortalk-frontend
+    runtime: python
+    rootDir: frontend
+    buildCommand: pip install -r requirements.txt
+    startCommand: streamlit run app.py --server.port $PORT --server.address 0.0.0.0
+    envVars:
+      - key: BACKEND_URL
+        fromService:
+          name: tailortalk-backend
+          type: web
+          property: host
