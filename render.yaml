@@ -1,5 +1,4 @@
-# render.yaml — place this in the ROOT of your repo
-# Deploy both services to Render.com for free
+
 
 services:
   - type: web
@@ -10,7 +9,7 @@ services:
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: GEMINI_API_KEY
-        sync: false          # you'll fill this in the Render dashboard
+        sync: false          
       - key: GOOGLE_SERVICE_ACCOUNT_JSON
         sync: false
       - key: DRIVE_FOLDER_ID
