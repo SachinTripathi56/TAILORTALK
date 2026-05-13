@@ -56,7 +56,7 @@ def search_drive_files(
     """
     service = get_drive_service()
     
-    # Add folder restriction if provided
+    
     if folder_id:
         folder_clause = f"'{folder_id}' in parents"
         if query_string:
@@ -64,7 +64,7 @@ def search_drive_files(
         else:
             query_string = folder_clause
     
-    # Always exclude trashed
+    
     query_string += " and trashed = false"
     
     results = service.files().list(

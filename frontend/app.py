@@ -2,7 +2,7 @@ import streamlit as st
 import requests
 import os
 
-# ── Config ──────────────────────────────────────────────────────────────────
+
 BACKEND_URL = os.environ.get("BACKEND_URL", "http://localhost:8000")
 
 st.set_page_config(
@@ -12,7 +12,6 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-# ── Custom CSS ───────────────────────────────────────────────────────────────
 st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap');
@@ -152,7 +151,7 @@ hr { border-color: #1e1e2e !important; }
 </style>
 """, unsafe_allow_html=True)
 
-# ── Session State ─────────────────────────────────────────────────────────────
+
 if "messages" not in st.session_state:
     st.session_state.messages = []
 if "pending_suggestion" not in st.session_state:
@@ -160,7 +159,7 @@ if "pending_suggestion" not in st.session_state:
 if "is_processing" not in st.session_state:
     st.session_state.is_processing = False
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
+
 def check_backend():
     try:
         r = requests.get(f"{BACKEND_URL}/health", timeout=3)
@@ -279,14 +278,14 @@ with st.sidebar:
 - **Combined**: *"PDFs about budget"*
 """)
 
-# ── Main Chat Area ────────────────────────────────────────────────────────────
+
 st.markdown('<div class="tt-header">🗂️ TailorTalk</div>', unsafe_allow_html=True)
 st.markdown(
     '<div class="tt-sub">Conversational Google Drive file discovery — powered by Gemini</div>',
     unsafe_allow_html=True,
 )
 
-# Welcome message
+
 if not st.session_state.messages:
     st.markdown("""
     <div class="msg-ai">
@@ -301,11 +300,11 @@ if not st.session_state.messages:
     </div>
     """, unsafe_allow_html=True)
 
-# Render all existing messages
+
 for msg in st.session_state.messages:
     render_message(msg)
 
-# ── STEP 1: If locked and last message is user → fire the API call ────────────
+
 if (
     st.session_state.is_processing
     and st.session_state.messages
@@ -325,7 +324,7 @@ if (
     st.session_state.is_processing = False
     st.rerun()
 
-# ── STEP 2: Show input only when not processing ───────────────────────────────
+
 st.markdown("<br>", unsafe_allow_html=True)
 
 if st.session_state.is_processing:
@@ -344,13 +343,13 @@ else:
     with col2:
         send_clicked = st.button("Send ➤", use_container_width=True)
 
-    # Handle sidebar suggestion click
+  
     if st.session_state.pending_suggestion:
         user_input = st.session_state.pending_suggestion
         st.session_state.pending_suggestion = None
         send_clicked = True
 
-    # Lock + append user message + rerun → triggers STEP 1 above
+    
     if send_clicked and (user_input or "").strip():
         st.session_state.is_processing = True
         st.session_state.messages.append({

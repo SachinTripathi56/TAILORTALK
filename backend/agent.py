@@ -5,37 +5,28 @@ from typing import Any
 
 from dotenv import load_dotenv
 
-# =========================
-# LOAD ENVIRONMENT VARIABLES
-# =========================
 
 BASE_DIR = Path(__file__).resolve().parent
 
-# Load .env explicitly
+
 load_dotenv(BASE_DIR / ".env")
 
-# Debug prints
+
 print("ENV FILE:", BASE_DIR / ".env")
 print("GEMINI_API_KEY:", os.getenv("GEMINI_API_KEY"))
 
-# =========================
-# LANGCHAIN IMPORTS
-# =========================
+
 
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain.agents import AgentExecutor, create_tool_calling_agent
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.messages import HumanMessage, AIMessage
 
-# =========================
-# CUSTOM TOOL
-# =========================
+
 
 from drive_tool import drive_search_tool
 
-# =========================
-# SYSTEM PROMPT
-# =========================
+
 
 SYSTEM_PROMPT = """
 You are TailorTalk, a smart AI assistant that helps users search files in Google Drive.
@@ -65,15 +56,11 @@ Guidelines:
 4. Include file names and links when available.
 """
 
-# =========================
-# DRIVE AGENT CLASS
-# =========================
 
 class DriveAgent:
 
     def __init__(self):
 
-        # Get Gemini API Key
         api_key = os.getenv("GEMINI_API_KEY")
 
         if not api_key:
@@ -81,17 +68,15 @@ class DriveAgent:
                 "GEMINI_API_KEY environment variable not set."
             )
 
-        # Initialize Gemini Model
         self.llm = ChatGoogleGenerativeAI(
             model="gemini-2.5-flash",
             google_api_key=api_key,
             temperature=0.1,
         )
 
-        # Register tools
+        
         self.tools = [drive_search_tool]
 
-        # Prompt Template
         prompt = ChatPromptTemplate.from_messages([
             ("system", SYSTEM_PROMPT),
 
@@ -123,9 +108,7 @@ class DriveAgent:
             handle_parsing_errors=True,
         )
 
-    # =========================
-    # CHAT METHOD
-    # =========================
+ 
 
     async def chat(self, message: str, history: list):
 
@@ -144,21 +127,18 @@ class DriveAgent:
                     AIMessage(content=msg["content"])
                 )
 
-        # Run Agent
+       
         result = await self.executor.ainvoke({
             "input": message,
             "chat_history": lc_history,
         })
 
-        # Get AI Reply
         reply = result.get(
             "output",
             "Sorry, I couldn't process that request."
         )
 
-        # =========================
-        # Extract File Data
-        # =========================
+       
 
         files = []
 
@@ -183,7 +163,7 @@ class DriveAgent:
                 ):
                     pass
 
-        # Remove duplicate files
+        
         unique_files = []
         seen = set()
 
@@ -195,7 +175,7 @@ class DriveAgent:
                 seen.add(file_id)
                 unique_files.append(file)
 
-        # Final Response
+        
         return {
             "reply": reply,
             "files": unique_files
